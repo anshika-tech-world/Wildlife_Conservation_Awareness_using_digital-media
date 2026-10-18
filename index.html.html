@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Wild Roots is an interactive introduction to wildlife conservation and the small actions that protect living systems." />
+    <title>Wild Roots — Conservation begins with noticing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --ink: #132c24;
+        --pine: #174b3a;
+        --moss: #2e6a4d;
+        --leaf: #9fc750;
+        --sun: #f5c856;
+        --cream: #f7f4ed;
+        --sand: #e8dfca;
+        --coral: #e66d56;
+        --muted: #577066;
+        --line: rgba(19, 44, 36, .14);
+        --shadow: 0 18px 50px rgba(18, 51, 40, .13);
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--cream);
+        color: var(--ink);
+        font-family: "DM Sans", Arial, sans-serif;
+        overflow-x: hidden;
+      }
+      button, input, select { font: inherit; }
+      button { cursor: pointer; }
+      a { color: inherit; text-decoration: none; }
+      .page-shell { max-width: 1440px; margin: 0 auto; background: var(--cream); overflow: hidden; }
+      .eyebrow {
+        display: inline-flex; align-items: center; gap: 9px;
+        margin: 0 0 18px; color: var(--moss); font: 500 11px/1 "DM Mono", monospace;
+        letter-spacing: .11em; text-transform: uppercase;
+      }
+      .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); box-shadow: 0 0 0 5px rgba(159,199,80,.16); }
+      .section { padding: 110px clamp(24px, 6.7vw, 96px); }
+      .section-heading { max-width: 620px; }
+      h1, h2, h3, p { margin-top: 0; }
+      h1, h2 { font-family: "Playfair Display", Georgia, serif; letter-spacing: -.045em; }
+      h2 { font-size: clamp(42px, 5.1vw, 72px); line-height: .99; margin-bottom: 23px; }
+      .lede { color: var(--muted); font-size: 17px; line-height: 1.65; max-width: 570px; }
+      .button {
+        min-height: 50px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        border: 1px solid transparent; border-radius: 99px; background: var(--pine); color: white;
+        font-size: 14px; font-weight: 700; transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+      }
+      .button:hover { transform: translateY(-2px); background: #0e3a2d; box-shadow: 0 10px 20px rgba(23,75,58,.2); }
+      .button:focus-visible, .nav-toggle:focus-visible, .answer:focus-visible, .habitat:focus-visible, .choice:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--sun); outline-offset: 3px; }
+      .button--light { background: white; color: var(--pine); }
+      .button--outline { background: transparent; color: var(--pine); border-color: rgba(23,75,58,.4); }
+      .button svg { width: 15px; height: 15px; }
+
+      /* Header */
+      .site-header { position: absolute; z-index: 10; left: 0; right: 0; }
+      .nav { height: 86px; padding: 0 clamp(24px, 6.7vw, 96px); display: flex; align-items: center; justify-content: space-between; gap: 28px; color: white; }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; letter-spacing: -.03em; }
+      .brand-mark { width: 27px; height: 27px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.75); border-radius: 50% 50% 50% 7px; transform: rotate(-26deg); }
+      .brand-mark svg { width: 17px; transform: rotate(26deg); }
+      .nav-links { display: flex; align-items: center; gap: clamp(18px, 2.7vw, 38px); font-size: 13px; font-weight: 600; }
+      .nav-links a { opacity: .82; transition: opacity .2s; }
+      .nav-links a:hover { opacity: 1; }
+      .nav .button { min-height: 39px; padding: 0 16px; font-size: 12px; }
+      .nav-toggle { display: none; background: none; border: 0; color: white; padding: 8px; }
+
+      /* Hero */
+      .hero { min-height: 760px; height: min(900px, 100vh); position: relative; color: white; display: flex; isolation: isolate; }
+      .hero::before {
+        content: ""; position: absolute; inset: 0; z-index: -2;
+        background: linear-gradient(90deg, rgba(7,31,23,.9) 0%, rgba(10,47,34,.64) 43%, rgba(12,35,26,.22) 100%),
+          url("https://images.unsplash.com/photo-1549366021-9f761d040a94?auto=format&fit=crop&w=2200&q=88") center / cover;
+      }
+      .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(0deg, rgba(8,32,24,.45), transparent 42%); }
+      .hero-content { width: 100%; padding: 167px clamp(24px, 6.7vw, 96px) 43px; display: flex; flex-direction: column; justify-content: space-between; }
+      .hero-top { max-width: 770px; }
+      .hero .eyebrow { color: #e7f4c9; }
+      .hero .eyebrow::before { background: var(--sun); box-shadow: 0 0 0 5px rgba(245,200,86,.2); }
+      h1 { margin-bottom: 27px; font-size: clamp(59px, 8.1vw, 117px); line-height: .86; font-weight: 700; }
+      h1 em { color: #d7ee92; font-weight: 600; }
+      .hero-copy { max-width: 480px; margin-bottom: 34px; color: rgba(255,255,255,.84); font-size: 17px; line-height: 1.62; }
+      .hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .hero-bottom { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(360px, 530px); align-items: end; gap: 32px; }
+      .scroll-note { display: inline-flex; align-items: center; gap: 11px; color: rgba(255,255,255,.7); font: 12px/1.4 "DM Mono", monospace; letter-spacing: .035em; }
+      .scroll-line { display: block; width: 42px; height: 1px; background: rgba(255,255,255,.65); }
+      .hero-fact { padding: 19px 0 0 23px; border-left: 1px solid rgba(255,255,255,.45); }
+      .hero-fact strong { display: block; max-width: 480px; font-family: "Playfair Display", Georgia, serif; font-size: clamp(19px, 2vw, 26px); line-height: 1.13; letter-spacing: -.03em; }
+      .hero-fact span { display: block; margin-top: 8px; color: rgba(255,255,255,.62); font: 11px/1.3 "DM Mono", monospace; letter-spacing: .04em; text-transform: uppercase; }
+
+      /* Observations */
+      .observations { position: relative; background: var(--cream); }
+      .observations-header { display: grid; grid-template-columns: minmax(260px, 1.15fr) minmax(310px, .85fr); gap: 90px; align-items: end; }
+      .observations-header .lede { margin-bottom: 5px; }
+      .insight-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 66px; }
+      .insight { min-height: 312px; padding: 27px; display: flex; flex-direction: column; justify-content: space-between; border-radius: 5px; transition: transform .25s, box-shadow .25s; }
+      .insight:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+      .insight:nth-child(1) { background: #dce8c8; }
+      .insight:nth-child(2) { background: #153e31; color: white; }
+      .insight:nth-child(3) { background: #f2d780; }
+      .insight-number { font: 500 13px/1 "DM Mono", monospace; letter-spacing: .06em; }
+      .insight-icon { width: 48px; height: 48px; color: currentColor; opacity: .92; }
+      .insight h3 { margin: 0 0 10px; font-family: "Playfair Display", Georgia, serif; font-size: 29px; line-height: 1.03; letter-spacing: -.035em; }
+      .insight p { margin: 0; max-width: 260px; font-size: 14px; line-height: 1.55; opacity: .74; }
+      .insight-source { margin-top: 37px; display: inline-flex; align-items: center; gap: 7px; color: var(--moss); font: 11px/1 "DM Mono", monospace; letter-spacing: .03em; text-transform: uppercase; }
+      .insight-source svg { width: 12px; }
+      .insight:nth-child(2) .insight-source { color: #d7ee92; }
+
+      /* Habitats */
+      .habitats { background: #edf1e6; }
+      .habitat-intro { display: flex; justify-content: space-between; gap: 28px; align-items: end; }
+      .habitat-intro .lede { margin-bottom: 0; }
+      .habitat-list { margin-top: 59px; border-top: 1px solid var(--line); }
+      .habitat { width: 100%; padding: 25px 0; display: grid; grid-template-columns: 64px minmax(180px, 1fr) minmax(260px, .9fr) 30px; gap: 22px; align-items: center; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); transition: color .22s, padding .22s; }
+      .habitat:hover, .habitat[aria-expanded="true"] { padding-left: 12px; color: var(--moss); }
+      .habitat-index { color: var(--moss); font: 500 11px/1 "DM Mono", monospace; }
+      .habitat h3 { margin: 0; font: 600 clamp(29px, 3.1vw, 44px)/1 "Playfair Display", Georgia, serif; letter-spacing: -.045em; }
+      .habitat p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+      .habitat .plus { width: 26px; height: 26px; position: relative; justify-self: end; border: 1px solid currentColor; border-radius: 50%; }
+      .habitat .plus::before, .habitat .plus::after { content: ""; position: absolute; top: 50%; left: 50%; width: 9px; height: 1px; background: currentColor; transform: translate(-50%, -50%); transition: transform .2s; }
+      .habitat .plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+      .habitat[aria-expanded="true"] .plus::after { transform: translate(-50%, -50%) rotate(0); }
+      .habitat-detail { display: none; grid-column: 2 / -1; padding: 0 0 9px; color: var(--moss); font-size: 14px; line-height: 1.55; max-width: 700px; }
+      .habitat-detail.open { display: block; }
+
+      /* Action lab */
+      .action-lab { background: var(--pine); color: white; position: relative; }
+      .action-lab::before { content: ""; position: absolute; width: 620px; height: 620px; border: 1px solid rgba(215,238,146,.17); border-radius: 50%; right: -290px; top: -245px; }
+      .action-lab::after { content: ""; position: absolute; width: 290px; height: 290px; border: 1px solid rgba(215,238,146,.13); border-radius: 50%; right: -20px; top: -80px; }
+      .action-lab .eyebrow { color: #dcefac; position: relative; z-index: 1; }
+      .action-lab .eyebrow::before { background: var(--sun); }
+      .lab-heading { max-width: 620px; position: relative; z-index: 1; }
+      .lab-heading h2 { margin-bottom: 15px; }
+      .lab-heading .lede { color: rgba(255,255,255,.72); }
+      .lab-grid { margin-top: 60px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 20px; position: relative; z-index: 1; }
+      .lab-panel { min-height: 398px; padding: clamp(25px, 3.3vw, 44px); border-radius: 6px; background: rgba(6,37,27,.55); border: 1px solid rgba(255,255,255,.12); }
+      .lab-panel h3 { margin-bottom: 24px; font-size: 13px; letter-spacing: .02em; }
+      .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .choice { min-height: 132px; padding: 17px 13px; display: flex; align-items: flex-start; flex-direction: column; justify-content: space-between; border: 1px solid rgba(255,255,255,.2); border-radius: 4px; color: white; text-align: left; background: transparent; transition: .2s; }
+      .choice:hover, .choice.selected { background: var(--leaf); border-color: var(--leaf); color: var(--ink); }
+      .choice svg { width: 27px; height: 27px; }
+      .choice span { font-size: 13px; font-weight: 700; line-height: 1.15; }
+      .ranges { margin-top: 31px; display: grid; gap: 23px; }
+      .range-label { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 10px; font-size: 13px; }
+      .range-label output { color: #d7ee92; font: 11px "DM Mono", monospace; }
+      input[type="range"] { appearance: none; width: 100%; height: 3px; border-radius: 3px; background: linear-gradient(to right, var(--leaf) 0 var(--fill), rgba(255,255,255,.23) var(--fill) 100%); }
+      input[type="range"]::-webkit-slider-thumb { appearance: none; width: 17px; height: 17px; border: 2px solid var(--pine); border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 2px var(--sun); }
+      input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border: 2px solid var(--pine); border-radius: 50%; background: var(--sun); box-shadow: 0 0 0 2px var(--sun); }
+      .impact-card { min-height: 398px; padding: clamp(25px, 3.3vw, 44px); display: flex; flex-direction: column; justify-content: space-between; border-radius: 6px; background: #d9e8b8; color: var(--ink); }
+      .impact-card .mini { margin: 0; color: var(--moss); font: 11px/1.4 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .impact-number { margin: 19px 0 9px; font: 600 clamp(68px, 8vw, 115px)/.8 "Playfair Display", Georgia, serif; letter-spacing: -.075em; color: var(--pine); }
+      .impact-unit { font: 600 22px/1.05 "Playfair Display", Georgia, serif; letter-spacing: -.03em; }
+      .impact-copy { margin: 28px 0 0; max-width: 350px; color: #385447; font-size: 14px; line-height: 1.6; }
+      .impact-note { padding-top: 18px; border-top: 1px solid rgba(23,75,58,.25); color: var(--moss); font-size: 12px; line-height: 1.5; }
+
+      /* Quiz */
+      .quiz { background: var(--sand); }
+      .quiz-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(42px, 8vw, 115px); align-items: start; }
+      .quiz-heading { position: sticky; top: 25px; }
+      .quiz-heading .lede { color: #52655e; }
+      .quiz-card { padding: clamp(25px, 4vw, 48px); background: var(--cream); border-radius: 5px; box-shadow: 0 13px 33px rgba(81,67,38,.12); }
+      .question-count { margin: 0 0 27px; color: var(--moss); font: 11px/1 "DM Mono", monospace; letter-spacing: .09em; text-transform: uppercase; }
+      .question { margin-bottom: 30px; font: 600 clamp(25px, 3vw, 35px)/1.12 "Playfair Display", Georgia, serif; letter-spacing: -.04em; }
+      .answers { display: grid; gap: 10px; }
+      .answer { padding: 15px 17px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: transparent; font-size: 14px; text-align: left; transition: .2s; }
+      .answer:hover { border-color: var(--moss); background: #eef4e4; }
+      .answer-letter { width: 25px; height: 25px; flex: 0 0 auto; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; color: var(--moss); font: 11px "DM Mono", monospace; }
+      .answer.correct { border-color: var(--moss); background: #dce8c8; }
+      .answer.incorrect { border-color: #c46b58; background: #f8e4dd; }
+      .feedback { min-height: 22px; margin: 21px 0 0; color: var(--moss); font-size: 13px; line-height: 1.5; }
+      .quiz-progress { height: 3px; margin-top: 33px; background: rgba(23,75,58,.16); }
+      .quiz-progress span { display: block; height: 100%; width: 33.333%; background: var(--moss); transition: width .35s ease; }
+
+      /* Pledge */
+      .pledge { background: var(--cream); }
+      .pledge-card { min-height: 470px; padding: clamp(33px, 6vw, 80px); position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr minmax(330px, .65fr); gap: 75px; align-items: center; color: white; border-radius: 7px; background: #102f25; }
+      .pledge-card::before { content: ""; position: absolute; inset: 0; opacity: .39; background: linear-gradient(90deg, rgba(16,47,37,.94), rgba(16,47,37,.4)), url("https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1600&q=80") center / cover; }
+      .pledge-copy, .pledge-form { position: relative; z-index: 1; }
+      .pledge-card h2 { max-width: 490px; margin-bottom: 20px; }
+      .pledge-copy p { max-width: 430px; margin-bottom: 0; color: rgba(255,255,255,.76); font-size: 16px; line-height: 1.6; }
+      .pledge-form { padding: 25px; background: rgba(249,248,241,.96); color: var(--ink); border-radius: 4px; }
+      .pledge-form label { display: block; margin-bottom: 7px; color: var(--moss); font: 500 11px/1 "DM Mono", monospace; letter-spacing: .06em; text-transform: uppercase; }
+      .pledge-form input, .pledge-form select { width: 100%; height: 47px; margin-bottom: 18px; padding: 0 13px; border: 1px solid rgba(23,75,58,.22); border-radius: 3px; background: white; color: var(--ink); }
+      .pledge-form .button { width: 100%; }
+      .pledge-success { display: none; min-height: 238px; place-items: center; text-align: center; }
+      .pledge-success.show { display: grid; }
+      .pledge-success .seal { width: 62px; height: 62px; margin: 0 auto 16px; display: grid; place-items: center; border: 1px solid var(--moss); border-radius: 50%; color: var(--moss); }
+      .pledge-success h3 { margin-bottom: 7px; font: 600 26px/1 "Playfair Display", Georgia, serif; letter-spacing: -.035em; }
+      .pledge-success p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+
+      footer { padding: 33px clamp(24px, 6.7vw, 96px); display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+      footer .brand { color: var(--pine); }
+      footer .brand-mark { border-color: var(--pine); }
+      footer a { text-decoration: underline; text-underline-offset: 3px; }
+      .toast { position: fixed; z-index: 20; left: 50%; bottom: 27px; padding: 13px 18px; transform: translate(-50%, 120px); border-radius: 99px; background: var(--ink); color: white; box-shadow: var(--shadow); font-size: 13px; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+      .toast.show { transform: translate(-50%, 0); }
+
+      @media (max-width: 790px) {
+        .site-header { background: linear-gradient(#0b281e, transparent); }
+        .nav { height: 70px; }
+        .nav-toggle { display: block; }
+        .nav-links { display: none; position: absolute; left: 16px; right: 16px; top: 61px; padding: 17px; flex-direction: column; align-items: stretch; border-radius: 5px; background: #103528; box-shadow: var(--shadow); }
+        .nav-links.open { display: flex; }
+        .nav-links .button { width: 100%; }
+        .hero { min-height: 690px; height: 100svh; }
+        .hero-content { padding-top: 130px; }
+        .hero-bottom { grid-template-columns: 1fr; gap: 24px; }
+        .hero-fact { max-width: 480px; }
+        .observations-header, .lab-grid, .quiz-grid, .pledge-card { grid-template-columns: 1fr; gap: 37px; }
+        .insight-grid { grid-template-columns: 1fr; margin-top: 42px; }
+        .insight { min-height: 247px; }
+        .habitat-intro { display: block; }
+        .habitat-intro .section-heading { margin-bottom: 21px; }
+        .habitat { grid-template-columns: 40px 1fr 28px; gap: 12px; }
+        .habitat p { display: none; }
+        .habitat-detail { grid-column: 2 / -1; }
+        .choices { grid-template-columns: 1fr; }
+        .choice { min-height: 67px; flex-direction: row; align-items: center; }
+        .quiz-heading { position: static; }
+        .pledge-card { min-height: 0; }
+      }
+      @media (max-width: 450px) {
+        .section { padding-top: 76px; padding-bottom: 76px; }
+        h1 { font-size: 55px; }
+        .hero-copy { font-size: 15px; }
+        .hero-actions { align-items: stretch; }
+        .hero-actions .button { width: 100%; }
+        .hero-fact strong { font-size: 18px; }
+        .impact-number { font-size: 75px; }
+        footer { align-items: flex-start; flex-direction: column; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header">
+        <nav class="nav" aria-label="Main navigation">
+          <a class="brand" href="#top" aria-label="Wild Roots home">
+            <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M18.5 3.6C12.2 3.4 6.6 6 5.1 12.1c-1 4.3 2.1 7.5 5.9 7.2 5.6-.5 7.8-7.5 7.5-15.7Z"/><path d="M5 19c2.1-4 5.3-6.7 9.7-8.4"/></svg></span>
+            WILD ROOTS
+          </a>
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-links"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span class="sr-only">Menu</span></button>
+          <div class="nav-links" id="nav-links">
+            <a href="#notice">Why it matters</a>
+            <a href="#habitats">Habitats</a>
+            <a href="#action">Action lab</a>
+            <a class="button button--light" href="#pledge">Take a pledge <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-content">
+            <div class="hero-top">
+              <p class="eyebrow">A field guide for the present</p>
+              <h1 id="hero-title">Wild places.<br /><em>Shared futures.</em></h1>
+              <p class="hero-copy">Every creature has a role in the living systems that feed, cool, and protect us. Conservation starts with seeing the connections.</p>
+              <div class="hero-actions">
+                <a class="button button--light" href="#notice">Begin exploring <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v15M6 13l6 6 6-6"/></svg></a>
+                <a class="button button--outline" href="#pledge">Make it personal</a>
+              </div>
+            </div>
+            <div class="hero-bottom">
+              <div class="scroll-note"><span class="scroll-line"></span> Follow the living thread</div>
+              <div class="hero-fact">
+                <strong>Nature is not a backdrop. It is the quiet infrastructure of every breath, meal, and season.</strong>
+                <span>Look closer. Choose wisely. Act together.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section observations" id="notice" aria-labelledby="notice-title">
+          <div class="observations-header">
+            <div class="section-heading">
+              <p class="eyebrow">01 / Notice</p>
+              <h2 id="notice-title">The web is more fragile than it looks.</h2>
+            </div>
+            <p class="lede">Wildlife is not only something to admire from a distance. Pollinators, forests, wetlands, and predators are partners in systems that make human life possible.</p>
+          </div>
+          <div class="insight-grid">
+            <article class="insight">
+              <div><span class="insight-number">01 — POLLINATORS</span></div>
+              <svg class="insight-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M31 34c-6-1-14-7-13-15 1-6 8-6 13 1M33 34c5-2 14-8 12-16-1-6-8-6-13 1M31 35c-5 4-8 11-5 15 4 4 8 0 7-7M33 35c5 4 8 11 5 15-4 4-8 0-7-7"/><path d="M22 34h20M32 28v19"/></svg>
+              <div><h3>Small workers, enormous harvests.</h3><p>Pollinators move life between flowers—supporting the plants that become fruit, seeds, shelter, and food.</p><a class="insight-source" href="https://www.fao.org/pollination/en/" target="_blank" rel="noreferrer">Explore pollination <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+            </article>
+            <article class="insight">
+              <div><span class="insight-number">02 — FORESTS</span></div>
+              <svg class="insight-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M32 55V30M32 10 14 34h10L9 48h46L40 34h10L32 10Z"/></svg>
+              <div><h3>Forests do more than hold trees.</h3><p>They store carbon, cycle water, anchor soil, and create the layered homes thousands of species need.</p><a class="insight-source" href="https://www.fao.org/forestry/en/" target="_blank" rel="noreferrer">Explore forests <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+            </article>
+            <article class="insight">
+              <div><span class="insight-number">03 — WETLANDS</span></div>
+              <svg class="insight-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M9 42c7 0 7 4 14 4s7-4 14-4 7 4 14 4M9 51c7 0 7 4 14 4s7-4 14-4 7 4 14 4M21 36c1-13 3-18 9-27 3 8 3 18 2 27M39 36c1-8 1-15-1-23 8 9 10 17 9 23"/></svg>
+              <div><h3>Water needs room to breathe.</h3><p>Wetlands filter water, soften floods, and offer crucial refuge along many migratory routes.</p><a class="insight-source" href="https://www.ramsar.org/about/our-mission" target="_blank" rel="noreferrer">Explore wetlands <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section habitats" id="habitats" aria-labelledby="habitat-title">
+          <div class="habitat-intro">
+            <div class="section-heading"><p class="eyebrow">02 / Understand</p><h2 id="habitat-title">Protect a home,<br />protect a world.</h2></div>
+            <p class="lede">Tap through the places where conservation has a different shape—and where one informed choice can travel farther than you think.</p>
+          </div>
+          <div class="habitat-list">
+            <button class="habitat" type="button" aria-expanded="false" aria-controls="forest-detail">
+              <span class="habitat-index">01</span><h3>Old-growth forests</h3><p>Living libraries with centuries of memory.</p><span class="plus" aria-hidden="true"></span>
+            </button>
+            <div class="habitat-detail" id="forest-detail">Their large trees, fallen logs, fungi, and layered canopies create niches that younger forests cannot replace quickly. Keeping existing old growth standing is one of the most immediate climate and biodiversity choices available.</div>
+            <button class="habitat" type="button" aria-expanded="false" aria-controls="ocean-detail">
+              <span class="habitat-index">02</span><h3>Coastal blue spaces</h3><p>Where land, sea, and livelihoods meet.</p><span class="plus" aria-hidden="true"></span>
+            </button>
+            <div class="habitat-detail" id="ocean-detail">Mangroves, seagrass beds, saltmarshes, and reefs buffer storms and provide nurseries for marine life. Their health is tied to what flows downstream from homes, farms, and cities.</div>
+            <button class="habitat" type="button" aria-expanded="false" aria-controls="grassland-detail">
+              <span class="habitat-index">03</span><h3>Open grasslands</h3><p>More life below ground than above it.</p><span class="plus" aria-hidden="true"></span>
+            </button>
+            <div class="habitat-detail" id="grassland-detail">Grasslands store much of their carbon in extensive root systems. They depend on movement—of grazing animals, fire, water, and seeds—and often disappear quietly when converted or fragmented.</div>
+            <button class="habitat" type="button" aria-expanded="false" aria-controls="city-detail">
+              <span class="habitat-index">04</span><h3>Neighbourhood nature</h3><p>The wild edges closest to home.</p><span class="plus" aria-hidden="true"></span>
+            </button>
+            <div class="habitat-detail" id="city-detail">A native plant, bird-safe window, shaded water source, or pesticide-free patch can create a stepping stone through a city. Wildlife corridors are not only remote landscapes; they can begin on a balcony or curbside.</div>
+          </div>
+        </section>
+
+        <section class="section action-lab" id="action" aria-labelledby="lab-title">
+          <div class="lab-heading"><p class="eyebrow">03 / Try it on</p><h2 id="lab-title">Your choices leave a habitat trail.</h2><p class="lede">This is a thought experiment, not a carbon calculator. Move the dials to see how everyday decisions can add up to a more generous landscape.</p></div>
+          <div class="lab-grid">
+            <div class="lab-panel">
+              <h3>Choose a place you want to stand up for.</h3>
+              <div class="choices" role="group" aria-label="Choose habitat">
+                <button class="choice selected" type="button" data-habitat="forest"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 42V24M24 7 10 27h8L7 38h34L30 27h8L24 7Z"/></svg><span>Forest<br />canopy</span></button>
+                <button class="choice" type="button" data-habitat="ocean"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 29c5 0 5 4 10 4s5-4 10-4 5 4 10 4 5-4 10-4M5 38c5 0 5 4 10 4s5-4 10-4 5 4 10 4 5-4 10-4M24 25c-4-5-3-11 0-17 4 6 4 12 0 17Z"/></svg><span>Coastal<br />waters</span></button>
+                <button class="choice" type="button" data-habitat="garden"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M24 42V22M24 26c-10 0-14-7-14-15 9 0 14 5 14 15ZM24 30c10 0 14-7 14-15-9 0-14 5-14 15Z"/></svg><span>Local<br />wildlife</span></button>
+              </div>
+              <div class="ranges">
+                <div><div class="range-label"><label for="learn-range">Make room to learn</label><output id="learn-output" for="learn-range">1 habit</output></div><input id="learn-range" type="range" min="1" max="5" value="2" style="--fill: 25%" /></div>
+                <div><div class="range-label"><label for="act-range">Make room to act</label><output id="act-output" for="act-range">2 steps</output></div><input id="act-range" type="range" min="1" max="5" value="3" style="--fill: 50%" /></div>
+              </div>
+            </div>
+            <aside class="impact-card" aria-live="polite">
+              <div><p class="mini">Your conservation mindset</p><div class="impact-number" id="impact-number">58</div><div class="impact-unit" id="impact-unit">roots in the forest</div><p class="impact-copy" id="impact-copy">You are building a habit of looking for the connection between a purchase, a place, and the life it supports.</p></div>
+              <p class="impact-note">The real measure is not a number. It is the next specific thing you do—and inviting someone else into it.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section quiz" id="quiz" aria-labelledby="quiz-title">
+          <div class="quiz-grid">
+            <div class="quiz-heading"><p class="eyebrow">04 / Test your field notes</p><h2 id="quiz-title">A little more curious?</h2><p class="lede">Three quick questions to turn attention into understanding. There is no score to share—only another thread to pull.</p></div>
+            <div class="quiz-card">
+              <p class="question-count" id="question-count">Question 1 of 3</p>
+              <div class="question" id="question">Why do wildlife corridors matter?</div>
+              <div class="answers" id="answers"></div>
+              <p class="feedback" id="feedback" aria-live="polite"></p>
+              <div class="quiz-progress" aria-hidden="true"><span id="quiz-progress"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section pledge" id="pledge" aria-labelledby="pledge-title">
+          <div class="pledge-card">
+            <div class="pledge-copy"><p class="eyebrow">05 / Begin nearby</p><h2 id="pledge-title">A promise is a good place to start.</h2><p>Name one action you will make room for. It could be learning the species around you, supporting a local group, or changing what you buy.</p></div>
+            <form class="pledge-form" id="pledge-form">
+              <div id="pledge-fields">
+                <label for="name">Your first name</label><input id="name" name="name" type="text" autocomplete="given-name" placeholder="e.g. Taylor" required />
+                <label for="promise">My next small action</label>
+                <select id="promise" name="promise" required><option value="">Choose an action</option><option>Learn five local species</option><option>Plant native, pesticide-free blooms</option><option>Support a conservation group</option><option>Choose lower-impact purchases</option><option>Bring someone outdoors with me</option></select>
+                <button class="button" type="submit">Seal my pledge <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></button>
+              </div>
+              <div class="pledge-success" id="pledge-success" aria-live="polite"><div><div class="seal"><svg viewBox="0 0 24 24" width="29" height="29" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg></div><h3>Rooted, <span id="pledger-name">friend</span>.</h3><p>Your intention has a place to grow. Keep it small, specific, and close to life.</p></div></div>
+            </form>
+          </div>
+        </section>
+      </main>
+      <footer><a class="brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M18.5 3.6C12.2 3.4 6.6 6 5.1 12.1c-1 4.3 2.1 7.5 5.9 7.2 5.6-.5 7.8-7.5 7.5-15.7Z"/><path d="M5 19c2.1-4 5.3-6.7 9.7-8.4"/></svg></span> WILD ROOTS</a><span>Made for the living world.</span><a href="#notice">Start again ↑</a></footer>
+    </div>
+    <div class="toast" role="status" aria-live="polite" id="toast">Pledge saved for this visit.</div>
+    <style>.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }</style>
+    <script>
+      const navToggle = document.querySelector('.nav-toggle');
+      const navLinks = document.querySelector('.nav-links');
+      navToggle.addEventListener('click', () => {
+        const open = navLinks.classList.toggle('open');
+        navToggle.setAttribute('aria-expanded', open);
+      });
+      navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => { navLinks.classList.remove('open'); navToggle.setAttribute('aria-expanded', 'false'); }));
+
+      document.querySelectorAll('.habitat').forEach(button => {
+        button.addEventListener('click', () => {
+          const detail = document.getElementById(button.getAttribute('aria-controls'));
+          const shouldOpen = button.getAttribute('aria-expanded') !== 'true';
+          document.querySelectorAll('.habitat').forEach(item => item.setAttribute('aria-expanded', 'false'));
+          document.querySelectorAll('.habitat-detail').forEach(item => item.classList.remove('open'));
+          button.setAttribute('aria-expanded', shouldOpen);
+          detail.classList.toggle('open', shouldOpen);
+        });
+      });
+
+      const data = {
+        forest: { unit: 'roots in the forest', copy: 'You are building a habit of looking for the connection between a purchase, a place, and the life it supports.', base: 31 },
+        ocean: { unit: 'waves of care', copy: 'You are following the current upstream: less waste, cleaner water, and more attention to the coast’s quiet protectors.', base: 27 },
+        garden: { unit: 'native seeds of change', copy: 'You are making the closest wild spaces easier to cross, feed in, and return to—one small patch at a time.', base: 35 }
+      };
+      let currentHabitat = 'forest';
+      const learn = document.getElementById('learn-range');
+      const act = document.getElementById('act-range');
+      const setFill = input => input.style.setProperty('--fill', `${((input.value - input.min) / (input.max - input.min)) * 100}%`);
+      function updateImpact() {
+        setFill(learn); setFill(act);
+        document.getElementById('learn-output').textContent = `${learn.value} ${learn.value === '1' ? 'habit' : 'habits'}`;
+        document.getElementById('act-output').textContent = `${act.value} ${act.value === '1' ? 'step' : 'steps'}`;
+        const place = data[currentHabitat];
+        const score = place.base + Number(learn.value) * 5 + Number(act.value) * 4;
+        document.getElementById('impact-number').textContent = score;
+        document.getElementById('impact-unit').textContent = place.unit;
+        document.getElementById('impact-copy').textContent = place.copy;
+      }
+      [learn, act].forEach(input => input.addEventListener('input', updateImpact));
+      document.querySelectorAll('.choice').forEach(choice => choice.addEventListener('click', () => {
+        document.querySelectorAll('.choice').forEach(item => item.classList.remove('selected'));
+        choice.classList.add('selected'); currentHabitat = choice.dataset.habitat; updateImpact();
+      }));
+
+      const questions = [
+        { question: 'Why do wildlife corridors matter?', answers: ['They make park maps easier to read.', 'They help animals move between fragmented habitats.', 'They keep people from entering forests.'], correct: 1, note: 'Exactly. Movement helps wildlife find food, mates, seasonal shelter, and genetic diversity.' },
+        { question: 'Which action is most helpful for pollinators at home?', answers: ['Plant a variety of native flowers and skip routine pesticides.', 'Mow every corner of the lawn twice a week.', 'Remove all flowering plants after spring.'], correct: 0, note: 'Yes. Diverse native blooms provide food across seasons, while fewer pesticides reduce unintended harm.' },
+        { question: 'What is a good first step before buying a wildlife-themed product?', answers: ['Check whether its materials and claims are transparent.', 'Assume every green label means the same thing.', 'Choose whatever has the largest animal image.'], correct: 0, note: 'Right. A little curiosity about sourcing and claims can help your spending support better practices.' }
+      ];
+      let activeQuestion = 0;
+      const answersEl = document.getElementById('answers');
+      const questionEl = document.getElementById('question');
+      const countEl = document.getElementById('question-count');
+      const feedbackEl = document.getElementById('feedback');
+      const progressEl = document.getElementById('quiz-progress');
+      function renderQuestion() {
+        const item = questions[activeQuestion];
+        countEl.textContent = `Question ${activeQuestion + 1} of ${questions.length}`;
+        questionEl.textContent = item.question;
+        feedbackEl.textContent = '';
+        progressEl.style.width = `${((activeQuestion + 1) / questions.length) * 100}%`;
+        answersEl.innerHTML = '';
+        item.answers.forEach((answer, index) => {
+          const button = document.createElement('button');
+          button.type = 'button'; button.className = 'answer';
+          button.innerHTML = `<span class="answer-letter">${String.fromCharCode(65 + index)}</span><span>${answer}</span>`;
+          button.addEventListener('click', () => chooseAnswer(index, button));
+          answersEl.appendChild(button);
+        });
+      }
+      function chooseAnswer(index, button) {
+        const item = questions[activeQuestion];
+        const buttons = [...answersEl.querySelectorAll('.answer')];
+        buttons.forEach((entry, i) => { entry.disabled = true; if (i === item.correct) entry.classList.add('correct'); });
+        if (index !== item.correct) button.classList.add('incorrect');
+        feedbackEl.textContent = item.note;
+        if (activeQuestion < questions.length - 1) setTimeout(() => { activeQuestion += 1; renderQuestion(); }, 2300);
+        else { countEl.textContent = 'Field notes complete'; feedbackEl.textContent += ' You are ready to carry that attention into the everyday.'; }
+      }
+      renderQuestion();
+
+      const toast = document.getElementById('toast');
+      document.getElementById('pledge-form').addEventListener('submit', event => {
+        event.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        document.getElementById('pledger-name').textContent = name || 'friend';
+        document.getElementById('pledge-fields').style.display = 'none';
+        document.getElementById('pledge-success').classList.add('show');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3700);
+      });
+    </script>
+  </body>
+</html>
